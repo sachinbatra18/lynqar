@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lynqar - Password Vault</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+  <meta name="theme-color" content="#000000">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+  <style>body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif}</style>
+</head>
+<body class="bg-black text-white min-h-screen">
+
+  <!-- Loading Screen -->
+  <div id="loading" class="fixed inset-0 bg-black flex items-center justify-center z-50">
+    <div class="text-center">
+      <div class="w-16 h-16 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin mx-auto mb-4"></div>
+      <p class="text-lg">Loading Lynqar...</p>
+    </div>
+  </div>
+
+  <!-- Setup Screen -->
+  <div id="setup" class="hidden min-h-screen flex items-center justify-center px-6">
+    <div class="max-w-md w-full">
+      <div class="text-center mb-8">
+        <div class="w-20 h-20 bg-gradient-to-br from-purple-500 to-purple-600 rounded-3xl mx-auto mb-6 flex items-center justify-center">
+          <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
+          </svg>
+        </div>
+        <h1 class="text-2xl font-bold mb-2">Welcome to Lynqar</h1>
+        <p class="text-gray-400">Create your master password to secure your vault</p>
+      </div>
+
+      <form id="setup-form" class="space-y-6">
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-2">Master Password</label>
+          <input
+            type="password"
+            id="master-password"
+            class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            placeholder="Choose a strong master password"
+            required
+          >
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-2">Confirm Password</label>
+          <input
+            type="password"
+            id="confirm-password"
+            class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            placeholder="Repeat your master password"
+            required
+          >
+        </div>
+
+        <button
+          type="submit"
+          class="w-full py-4 bg-gradient-to-r from-purple-600 to-purple-700 text-white font-semibold rounded-lg hover:shadow-lg transition-all"
+        >
+          Create Vault
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Login Screen -->
+  <div id="login" class="hidden min-h-screen flex items-center justify-center px-6">
+    <div class="max-w-md w-full">
+      <div class="text-center mb-8">
+        <div class="w-20 h-20 bg-gradient-to-br from-purple-500 to-purple-600 rounded-3xl mx-auto mb-6 flex items-center justify-center">
+          <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
+          </svg>
+        </div>
+        <h1 class="text-2xl font-bold mb-2">Unlock Your Vault</h1>
+        <p class="text-gray-400">Enter your master password</p>
+      </div>
+
+      <form id="login-form" class="space-y-6">
+        <div>
+          <input
+            type="password"
+            id="login-password"
+            class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            placeholder="Enter master password"
+            required
+          >
+        </div>
+
+        <button
+          type="submit"
+          class="w-full py-4 bg-gradient-to-r from-purple-600 to-purple-700 text-white font-semibold rounded-lg hover:shadow-lg transition-all"
+        >
+          Unlock Vault
+        </button>
+
+        <div id="login-error" class="hidden bg-red-500/10 border border-red-500/30 rounded-lg p-4">
+          <p class="text-red-400 text-sm">Incorrect password. Please try again.</p>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Main App -->
+  <div id="app" class="hidden">
+
+    <!-- Header -->
+    <header class="bg-gray-900/50 backdrop-blur-sm border-b border-gray-800 px-6 py-4">
+      <div class="flex justify-between items-center">
+        <div class="text-xl font-bold">Lynqar</div>
+        <div class="flex items-center space-x-4">
+          <button id="add-entry-btn" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition">
+            Add Entry
+          </button>
+          <button id="logout-btn" class="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition">
+            Lock
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Search -->
+    <div class="px-6 py-4 bg-gray-900/30">
+      <input
+        type="text"
+        id="search"
+        placeholder="Search passwords..."
+        class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+      >
+    </div>
+
+    <!-- Password List -->
+    <div id="entries-list" class="flex-1 px-6 py-4 space-y-3">
+      <div id="empty-state" class="text-center py-12">
+        <div class="w-20 h-20 bg-gray-800 rounded-full mx-auto mb-6 flex items-center justify-center">
+          <svg class="w-10 h-10 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          </svg>
+        </div>
+        <h3 class="text-xl font-semibold mb-2">No passwords saved yet</h3>
+        <p class="text-gray-400 mb-6">Click "Add Entry" to save your first password</p>
+        <button id="add-first-entry-btn" class="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition">
+          Add Your First Password
+        </button>
+      </div>
+    </div>
+
+    <div id="entries-container" class="hidden">
+      <!-- Entries will be added here -->
+    </div>
+
+  </div>
+
+  <!-- Add Entry Modal -->
+  <div id="add-modal" class="fixed inset-0 bg-black/50 hidden z-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+      <div class="bg-gray-800 rounded-lg p-6 w-full max-w-md">
+        <h3 class="text-xl font-bold mb-6">Add New Entry</h3>
+        <form id="entry-form" class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">Service Name</label>
+            <input
+              type="text"
+              id="entry-title"
+              class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
+              placeholder="e.g., Gmail, GitHub"
+              required
+            >
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">Username/Email</label>
+            <input
+              type="text"
+              id="entry-username"
+              class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
+              placeholder="username@example.com"
+            >
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">Password</label>
+            <div class="flex gap-2">
+              <input
+                type="password"
+                id="entry-password"
+                class="flex-1 px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
+                placeholder="Password"
+              >
+              <button
+                type="button"
+                id="generate-btn"
+                class="px-3 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-500"
+                title="Generate strong password"
+              >
+                🎲
+              </button>
+            </div>
+            <!-- Password Strength Meter -->
+            <div class="mt-2">
+              <div class="flex items-center gap-2 mb-1">
+                <div class="flex-1 bg-gray-700 rounded-full h-2">
+                  <div id="strength-meter" class="h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+                <span id="strength-text" class="text-xs text-gray-400">Weak</span>
+              </div>
+              <div class="text-xs text-gray-500">Use 8+ chars with uppercase, lowercase, numbers & symbols</div>
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">Website URL</label>
+            <input
+              type="url"
+              id="entry-url"
+              class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
+              placeholder="https://example.com"
+            >
+          </div>
+          <div class="flex gap-3 pt-4">
+            <button
+              type="button"
+              id="cancel-btn"
+              class="flex-1 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-500 transition"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="flex-1 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
+            >
+              Save Entry
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success/Error Messages -->
+  <div id="toast" class="fixed bottom-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg hidden z-50">
+    <span id="toast-message">Entry saved successfully!</span>
+  </div>
+
+  <!-- Script -->
+  <script src="vault-app.js"></script>
+</body>
+</html>

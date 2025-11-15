@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-black text-white min-h-screen p-6">
+    <div class="max-w-md mx-auto">
+        <h1 class="text-2xl font-bold mb-6">Password Key Test</h1>
+
+        <form id="test-form" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium mb-2">Test Password</label>
+                <input type="password" id="test-password" class="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded text-white" placeholder="Enter password">
+            </div>
+
+            <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded">
+                Test Key Derivation
+            </button>
+        </form>
+
+        <div id="results" class="mt-6 p-4 bg-gray-800 rounded hidden">
+            <h3 class="font-semibold mb-2">Results:</h3>
+            <div id="results-content"></div>
+        </div>
+    </div>
+
+    <script>
+        async function deriveKey(password) {
+            const encoder = new TextEncoder();
+            // Use fixed salt for consistent key derivation
+            const salt = encoder.encode('lynqar-fixed-salt-2025');
+
+            const keyMaterial = await crypto.subtle.importKey(
+                'raw', encoder.encode(password), 'PBKDF2', false, ['deriveKey']
+            );
+
+            const key = await crypto.subtle.deriveKey(
+                { name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256' },
+                keyMaterial,
+                { name: 'AES-GCM', length: 256 },
+                false, ['encrypt', 'decrypt']
+            );
+
+            return key;
+        }
+
+        async function encryptTestData(key) {
+            const testData = 'Hello, this is test data for Lynqar vault';
+            const iv = crypto.getRandomValues(new Uint8Array(12));
+            const encrypted = await crypto.subtle.encrypt(
+                { name: 'AES-GCM', iv }, key, new TextEncoder().encode(testData)
+            );
+
+            const combined = new Uint8Array(iv.length + encrypted.byteLength);
+            combined.set(iv);
+            combined.set(new Uint8Array(encrypted), iv.length);
+
+            return btoa(String.fromCharCode(...combined));
+        }
+
+        async function decryptTestData(key, encryptedData) {
+            try {
+                const combined = Uint8Array.from(atob(encryptedData), c => c.charCodeAt(0));
+                const iv = combined.slice(0, 12);
+                const encrypted = combined.slice(12);
+
+                const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, encrypted);
+                return new TextDecoder().decode(decrypted);
+            } catch (error) {
+                throw new Error('Decryption failed: ' + error.message);
+            }
+        }
+
+        document.getElementById('test-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const password = document.getElementById('test-password').value;
+
+            const resultsDiv = document.getElementById('results');
+            const resultsContent = document.getElementById('results-content');
+            resultsDiv.classList.remove('hidden');
+
+            resultsContent.innerHTML = '<div class="text-blue-400">Testing...</div>';
+
+            try {
+                // Test 1: Derive key
+                const key = await deriveKey(password);
+                resultsContent.innerHTML += '<div class="text-green-400">✅ Key derivation successful</div>';
+
+                // Test 2: Encrypt data
+                const encrypted = await encryptTestData(key);
+                resultsContent.innerHTML += '<div class="text-green-400">✅ Encryption successful</div>';
+
+                // Test 3: Decrypt same data
+                const decrypted = await decryptTestData(key, encrypted);
+                resultsContent.innerHTML += '<div class="text-green-400">✅ Decryption successful: ' + decrypted + '</div>';
+
+                // Test 4: Try to decrypt with wrong password
+                const wrongKey = await deriveKey(password + 'wrong');
+                try {
+                    await decryptTestData(wrongKey, encrypted);
+                    resultsContent.innerHTML += '<div class="text-yellow-400">⚠️ Wrong password still decrypted (unexpected)</div>';
+                } catch (wrongError) {
+                    resultsContent.innerHTML += '<div class="text-green-400">✅ Wrong password correctly rejected</div>';
+                }
+
+                // Show encrypted data
+                resultsContent.innerHTML += '<div class="mt-4 p-2 bg-gray-900 rounded text-xs break-all">';
+                resultsContent.innerHTML += '<strong>Encrypted data:</strong><br>' + encrypted.substring(0, 50) + '...';
+                resultsContent.innerHTML += '</div>';
+
+            } catch (error) {
+                resultsContent.innerHTML = '<div class="text-red-400">❌ Error: ' + error.message + '</div>';
+                console.error('Test failed:', error);
+            }
+        });
+    </script>
+</body>
+</html>

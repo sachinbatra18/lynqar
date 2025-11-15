@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Fix Debug</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-black text-white min-h-screen p-6">
+    <div class="max-w-2xl mx-auto">
+        <h1 class="text-2xl font-bold mb-6">Lynqar Login Fix Debug Tool</h1>
+
+        <div class="bg-gray-800 rounded-lg p-6 mb-6">
+            <h2 class="text-lg font-semibold mb-4">🎯 Problem Fixed: Password Key Derivation</h2>
+            <p class="mb-4">The login was failing because the password key derivation was using a variable salt. I've fixed it to use a fixed salt.</p>
+            <p class="text-yellow-400">But you may have old encrypted data that's incompatible. Let's clear it and start fresh.</p>
+        </div>
+
+        <div class="bg-gray-700 rounded-lg p-6 mb-6">
+            <h3 class="font-semibold mb-2">📋 Debug Information:</h3>
+            <div id="debug-info"></div>
+        </div>
+
+        <div class="space-y-4">
+            <button onclick="clearOldData()" class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition">
+                🧹 Clear Old Data (Safe - Required)
+            </button>
+
+            <a href="vault.html" class="inline-block w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition text-center">
+                🚀 Go to Vault (After Clearing)
+            </a>
+        </div>
+
+        <div class="mt-8 text-sm text-gray-400">
+            <p><strong>What this does:</strong> Clears old localStorage and IndexedDB data that's causing login issues. You'll need to create a new vault.</p>
+            <p class="mt-2"><strong>Your data security:</strong> Old encrypted data cannot be recovered anyway due to key incompatibility. Starting fresh is the best option.</p>
+        </div>
+    </div>
+
+    <script>
+        function displayDebugInfo() {
+            let info = '';
+
+            // Check localStorage
+            try {
+                const lsKeys = Object.keys(localStorage);
+                info += `<p><strong>localStorage keys:</strong> ${lsKeys.length}</p>`;
+                if (lsKeys.length > 0) {
+                    info += '<ul>';
+                    lsKeys.forEach(key => {
+                        if (key.startsWith('vault') || key.includes('lynqar')) {
+                            info += `<li class="text-yellow-400">• ${key}</li>`;
+                        }
+                    });
+                    info += '</ul>';
+                } else {
+                    info += '<p class="text-green-400">No vault data found.</p>';
+                }
+            } catch (e) {
+                info += '<p class="text-red-400">localStorage access error</p>';
+            }
+
+            // Check IndexedDB (basic)
+            info += '<p><strong>IndexedDB:</strong> Check in browser dev tools</p>';
+
+            document.getElementById('debug-info').innerHTML = info;
+        }
+
+        async function clearOldData() {
+            if (!confirm('This will delete all vault data. You cannot undo this. Continue?')) {
+                return;
+            }
+
+            try {
+                // Clear localStorage
+                localStorage.clear();
+                console.log('✅ localStorage cleared');
+
+                // Clear IndexedDB
+                const deleteRequest = indexedDB.deleteDatabase('lynqar-vault');
+                deleteRequest.onsuccess = () => console.log('✅ IndexedDB cleared');
+
+                alert('✅ All data cleared! Now go to vault to create a new vault.');
+
+            } catch (error) {
+                console.error('Clearing failed:', error);
+                alert('❌ Clearing failed. Check console for errors.');
+            }
+        }
+
+        displayDebugInfo();
+    </script>
+</body>
+</html>

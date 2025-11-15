@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lynqar - Secure Offline Password Manager</title>
+  <meta name="description" content="Lynqar is a secure, offline password manager that keeps your data private. Zero-knowledge encryption, no cloud storage required." />
+
+  <!-- SEO Meta Tags -->
+  <meta property="og:title" content="Lynqar - Secure Offline Password Manager" />
+  <meta property="og:description" content="Keep your passwords safe offline with zero-knowledge encryption. No cloud storage, fully private." />
+  <meta property="og:image" content="https://lynqar.app/og-image.jpg" />
+  <meta property="og:url" content="https://lynqar.app" />
+
+  <!-- Styles -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+  <style>body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif}</style>
+</head>
+<body class="bg-black text-white">
+
+  <!-- Navigation -->
+  <nav class="fixed top-0 w-full bg-black/90 backdrop-blur-sm z-50">
+    <div class="max-w-6xl mx-auto px-6 py-4">
+      <div class="flex justify-between items-center">
+        <div class="text-2xl font-bold bg-gradient-to-r from-white to-purple-400 bg-clip-text text-transparent">Lynqar</div>
+        <div class="hidden md:flex space-x-8">
+          <a href="#features" class="hover:text-purple-400 transition">Features</a>
+          <a href="#download" class="hover:text-purple-400 transition">Download</a>
+        </div>
+        <button id="menu-btn" class="md:hidden">☰</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Mobile Menu -->
+  <div id="mobile-menu" class="fixed top-0 left-full w-full h-screen bg-black/95 transition-all duration-300 md:hidden">
+    <div class="pt-20 px-6">
+      <a href="#features" class="block py-4">Features</a>
+      <a href="#download" class="block py-4">Download</a>
+    </div>
+  </div>
+
+  <!-- Hero Section -->
+  <section class="min-h-screen pt-20 flex items-center justify-center px-6">
+    <div class="max-w-4xl mx-auto text-center">
+      <h1 class="text-4xl md:text-6xl font-bold mb-6">
+        <span class="bg-gradient-to-r from-white to-purple-400 bg-clip-text text-transparent">Secure</span> Password Manager
+      </h1>
+      <p class="text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
+        Keep your passwords safe offline. Zero-knowledge encryption, no cloud storage required.
+      </p>
+
+      <button onclick="window.location.href='vault.html'" class="inline-flex items-center px-8 py-4 bg-gradient-to-r from-purple-600 to-purple-700 text-white font-semibold rounded-full text-lg hover:shadow-xl hover:shadow-purple-500/25 transform hover:scale-105 transition-all">
+        Try Password Manager →
+      </button>
+
+      <!-- Trust badges -->
+      <div class="flex justify-center gap-8 mt-12 text-sm text-gray-500">
+        <div>🔒 AES-256 Encrypted</div>
+        <div>🌐 Offline-First</div>
+        <div>🔓 Zero Cloud Storage</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section id="features" class="py-20 px-6">
+    <div class="max-w-6xl mx-auto">
+      <h2 class="text-3xl md:text-5xl font-bold text-center mb-16">Why Choose Lynqar?</h2>
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div class="p-6 bg-white/5 rounded-2xl hover:bg-white/10 transition">
+          <div class="text-3xl mb-4">🔒</div>
+          <h3 class="text-xl font-semibold mb-3">Advanced Security</h3>
+          <p class="text-gray-400">Military-grade AES-256 encryption keeps your passwords safe offline.</p>
+        </div>
+        <div class="p-6 bg-white/5 rounded-2xl hover:bg-white/10 transition">
+          <div class="text-3xl mb-4">⚡</div>
+          <h3 class="text-xl font-semibold mb-3">Lightning Fast</h3>
+          <p class="text-gray-400">Instant access and autofill across all devices and platforms.</p>
+        </div>
+        <div class="p-6 bg-white/5 rounded-2xl hover:bg-white/10 transition">
+          <div class="text-3xl mb-4">🛡️</div>
+          <h3 class="text-xl font-semibold mb-3">Privacy First</h3>
+          <p class="text-gray-400">Your data stays on your device – we never store anything on cloud.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Download Section -->
+  <section id="download" class="py-20 px-6 bg-purple-900/10">
+    <div class="max-w-4xl mx-auto text-center">
+      <h2 class="text-3xl md:text-5xl font-bold mb-8">Download Lynqar</h2>
+      <p class="text-xl text-gray-400 mb-8">Get the secure, offline password manager that puts privacy first.</p>
+      <button onclick="window.location.href='vault.html'" class="px-8 py-4 bg-purple-600 text-white rounded-full font-semibold hover:bg-purple-700 transition">
+        Start Using Lynqar
+      </button>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="py-12 px-6 bg-gray-900/30 border-t border-gray-800">
+    <div class="max-w-6xl mx-auto text-center">
+      <p>&copy; 2025 Lynqar. Made with ❤️ in India.</p>
+      <div class="mt-4 text-gray-500">
+        <a href="#" class="hover:text-white mx-4">Privacy</a>
+        <a href="#" class="hover:text-white mx-4">Terms</a>
+        <a href="mailto:hello@lynqar.app" class="hover:text-white mx-4">Contact</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Mobile menu
+    const menuBtn = document.getElementById('menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+
+    menuBtn?.addEventListener('click', () => {
+      mobileMenu.classList.toggle('left-full');
+      mobileMenu.classList.toggle('left-0');
+    });
+
+    // Close mobile menu when clicking outside
+    mobileMenu?.addEventListener('click', (e) => {
+      if (e.target === mobileMenu) {
+        mobileMenu.classList.add('left-full');
+        mobileMenu.classList.remove('left-0');
+      }
+    });
+  </script>
+</body>
+</html>
